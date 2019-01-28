@@ -8,12 +8,13 @@
 <body>
 	<div id="tify"></div>
 	<script>
+		window.location = 'https://tify.sub.uni-goettingen.de/demo.html?manifest=https://manifests.sub.uni-goettingen.de/iiif/presentation/PPN857449303/manifest'
 		var matches = window.location.search.match(/(\?|&)language\=([^&]*)/);
 		var language = (matches && matches.length === 3 ? matches[2] : null);
 		if (language) {
 			tifyOptions = {
 				language: language,
 			};
-		}
+		}		
 	</script>
 </body>
