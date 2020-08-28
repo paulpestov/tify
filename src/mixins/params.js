@@ -17,9 +17,11 @@ export default {
 				// Nothing to do here
 			}
 
+			params.view = (this.$root.collections) ? 'collections' : 'scan';
+
 			// NOTE: params.view can be an empty string (showing only the scan on large screens)
 			if (this.$root.isMobile() && !params.view) {
-				params.view = 'scan';
+				params.view = (this.$root.collections) ? 'collections' : 'scan';
 			} else if (typeof params.view === 'undefined') {
 				params.view = 'info';
 			}

@@ -1,10 +1,16 @@
 <template>
 	<div class="tify-app">
 		<app-header
-			v-if="$root.manifest"
+			v-if="$root.collections || $root.manifest"
 			:fulltextEnabled="hasOtherContent"
 			:tocEnabled="hasToc"
 		/>
+
+		<div v-if="$root.collections" class="tify-app_main">
+			<collections-tree
+					v-show="$root.params.view === 'collections'"
+					:collections="$root.collections.collections"/>
+		</div>
 
 		<div v-if="$root.manifest" class="tify-app_main">
 			<scan/>
@@ -44,6 +50,7 @@ import Info from '@/views/Info';
 import Scan from '@/views/Scan';
 import Thumbnails from '@/views/Thumbnails';
 import Toc from '@/views/Toc';
+import CollectionsTree from '@/components/CollectionsTree';
 
 export default {
 	components: {
@@ -55,13 +62,14 @@ export default {
 		Thumbnails,
 		Toc,
 		Fulltext,
+		CollectionsTree,
 	},
 	computed: {
 		hasOtherContent() {
-			return this.$root.canvases.some((canvas) => 'otherContent' in canvas);
+			return this.$root.manifest && this.$root.canvases.some((canvas) => 'otherContent' in canvas);
 		},
 		hasToc() {
-			return !!(this.$root.manifest.structures && this.$root.manifest.structures.length);
+			return !!(this.$root.manifest && this.$root.manifest.structures && this.$root.manifest.structures.length);
 		},
 	},
 	mounted() {
@@ -96,29 +104,47 @@ export default {
 
 		// Load manifest
 		httpClient.get(this.$root.manifestUrl).then((response) => {
-			const manifest = response.data;
-			const manifestValid = this.$root.validateManifest(manifest);
+			const { data } = response;
 
-			if (manifestValid) {
-				this.$root.manifest = manifest;
+			if (data['@type'] === 'sc:Collection') {
+				this.$root.collections = data;
+			} else if (data['@type'] === 'sc:Manifest') {
+				const manifestValid = this.$root.validateManifest(data);
 
-				// Merging user-set query params with defaults
-				this.$root.params = this.$root.getParams();
-
-				window.addEventListener('popstate', () => {
-					this.$root.params = this.$root.getParams();
-				});
-
-				if (this.$root.options.title) {
-					window.document.title = `${this.$root.convertValueToArray(this.$root.manifest.label)[0]}`
-							+ ` | ${this.$root.options.title}`;
+				if (manifestValid) {
+					this.$root.manifest = data;
+					if (this.$root.options.title) {
+						window.document.title = `${this.$root.convertValueToArray(this.$root.manifest.label)[0]}`
+								+ ` | ${this.$root.options.title}`;
+					}
+				} else {
+					this.$root.error = 'Error validating IIIF manifest: TIFY only supports IIIF Presentation API 2.0';
 				}
-			} else {
-				this.$root.error = 'Error validating IIIF manifest: TIFY only supports IIIF Presentation API 2.0';
 			}
+
+			// Merging user-set query params with defaults
+			this.$root.params = this.$root.getParams();
+
+			window.addEventListener('popstate', () => {
+				this.$root.params = this.$root.getParams();
+			});
 		}, (error) => {
 			const status = (error.response ? error.response.statusText : error.message);
 			this.$root.error = `Error loading IIIF manifest: ${status}`;
+		}).then(() => {
+			if (this.$root.collections) {
+				httpClient.get(this.$root.collections.collections[0]['@id'])
+					.then(({ data }) => {
+						if (data.collections) {
+							httpClient.get(data.collections[0]['@id'])
+								.then((response) => {
+									if (response.data.collections) {
+										httpClient.get(response.data.collections[0]['@id']);
+									}
+								});
+						}
+					});
+			}
 		});
 
 		// Load translation

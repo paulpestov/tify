@@ -88,6 +88,7 @@ const Tify = new Vue({
 		error: '',
 		loading: 0,
 		manifest: null,
+		collections: null,
 		manifestUrl: '',
 		messages: null,
 		options,

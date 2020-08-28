@@ -1,12 +1,20 @@
 <template>
 	<header class="tify-header">
+		<div class="tify-header_column">
+			<button
+					v-if="$root.collections && showManifestControls"
+					class="tify-header_button"
+					@click="handleBackButton">
+				<icon name="360"/>
+			</button>
+		</div>
 		<div class="tify-header_column -title">
-			<h1 class="tify-header_title" :title="titles.join(', ')">
-				{{ titles.join(', ') }}
+			<h1 class="tify-header_title" :title="title">
+				{{ title }}
 			</h1>
 		</div>
 
-		<div class="tify-header_column -pagination">
+		<div v-if="showManifestControls" class="tify-header_column -pagination">
 			<div class="tify-header_button-group">
 				<page-select class="tify-header_button"/>
 
@@ -28,7 +36,7 @@
 			<Pagination :keyboard="true"/>
 		</div>
 
-		<div class="tify-header_column -controls-toggle">
+		<div v-if="showManifestControls" class="tify-header_column -controls-toggle">
 			<div class="tify-header_button-group" ref="switchViewSmall">
 				<button
 					class="tify-header_button"
@@ -41,7 +49,7 @@
 			</div>
 		</div>
 
-		<div class="tify-header_column -controls" :class="{ '-visible': controlsVisible }">
+		<div v-if="showManifestControls" class="tify-header_column -controls" :class="{ '-visible': controlsVisible }">
 			<div class="tify-header_button-group -view">
 				<button
 					class="tify-header_button -scan"
@@ -152,6 +160,7 @@ export default {
 	props: [
 		'fulltextEnabled',
 		'tocEnabled',
+		'showManifestControls',
 	],
 	data() {
 		return {
@@ -166,13 +175,18 @@ export default {
 					|| document.msFullscreenElement === null
 					|| document.webkitFullscreenElement === null;
 		},
-		titles() {
-			return this.$root.convertValueToArray(this.$root.manifest.label);
+		title() {
+			const label = this.showManifestControls ? this.$root.manifest.label : this.$root.collections.label;
+			return this.$root.convertValueToArray(label).join(', ');
 		},
 	},
 	methods: {
 		closeControlsPopup() {
 			this.controlsVisible = false;
+		},
+		handleBackButton() {
+			this.showManifestControls = false;
+			this.$root.updateParams({ view: 'collections' });
 		},
 		detectFullscreen: () => {
 			let fullscreenAPI;
