@@ -20,6 +20,7 @@ To embed TIFY into your site:
 1. Copy the contents of the `dist/` directory to your server.
 2. Add an HTML element serving as the container.
 3. Include `tify.js`.
+4. Create a new `Tify` instance.
 
 The container element should have the following CSS applied:
 - either `position: relative` or `position: absolute`
@@ -30,6 +31,9 @@ The required HTML code looks something like this:
 ``` html
 <div id="tify"></div>
 <script src="tify.js"></script>
+<script>
+    const tify = new Tify();
+</script>
 ```
 
 The only required parameter `manifest` is a URL pointing to the manifest. It can be set either as a query parameter or with the `tifyOptions` object, whereby the latter takes precedence.

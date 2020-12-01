@@ -1,7 +1,34 @@
-<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TIFY</title><link href="/tify.css" rel="preload" as="style"><link href="/tify.js" rel="preload" as="script"><link href="/tify.css" rel="stylesheet"></head><body><div id="tify"></div><script>var matches = window.location.search.match(/(\?|&)language\=([^&]*)/);
-			var language = (matches && matches.length === 3 ? matches[2] : null);
-			if (language) {
-				tifyOptions = {
-					language: language,
-				};
-			}</script><script src="/tify.js"></script></body></html>
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta content="width=device-width,initial-scale=1" name="viewport">
+	<title>TIFY</title>
+	<link as="style" href="/tify.css" rel="preload">
+	<link as="script" href="/tify.js" rel="preload">
+	<link href="/tify.css" rel="stylesheet">
+
+</head>
+<body>
+<div class="container">
+	<div id="tify1"></div>
+	<div id="tify2"></div>
+</div>
+
+<script>var matches = window.location.search.match(/(\?|&)language\=([^&]*)/);
+var language = (matches && matches.length === 3 ? matches[2] : null);
+if (language) {
+	tifyOptions = {
+		language: language,
+	};
+}
+</script>
+<script src="/tify.js"></script>
+<script>
+	window.onload = () => {
+		new Tify({container: '#tify1'});
+		new Tify({container: '#tify2'})
+	}
+</script>
+</body>
+</html>

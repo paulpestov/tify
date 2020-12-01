@@ -70,63 +70,72 @@ if (process.env.NODE_ENV === 'production') {
 	stylesheetUrl = null;
 }
 
-const options = {
-	breakpoints: {
-		large: 1300,
-		medium: 1000,
-		small: 700,
-		tiny: 359,
-	},
-	container: '#tify',
-	immediateRender: true,
-	init: true,
-	language: 'en',
-	manifest: null,
-	stylesheet: stylesheetUrl,
-	title: 'TIFY',
-	...window.tifyOptions,
-};
+class Tify {
+	constructor(options) {
+		this.options = {
+			breakpoints: {
+				large: 1300,
+				medium: 1000,
+				small: 700,
+				tiny: 359,
+			},
+			container: '#tify',
+			immediateRender: true,
+			language: 'en',
+			manifest: null,
+			stylesheet: stylesheetUrl,
+			title: 'TIFY',
+			...options,
+			...window.tifyOptions,
+		};
 
-const Tify = new Vue({
-	render: (h) => h(App),
-	data: {
-		base,
-		error: '',
-		loading: 0,
-		manifest: null,
-		manifestUrl: '',
-		messages: null,
-		options,
-		params: {},
-		paramsTimer: null,
-	},
-	mixins: [uiMixin, paramsMixin, iiifMixin],
-	computed: {
-		canvases() {
-			return this.manifest.sequences[0].canvases;
-		},
-		pageCount() {
-			return this.manifest.sequences[0].canvases.length;
-		},
-	},
-});
+		this.instance = null;
 
-Tify.init = () => {
-	const container = typeof options.container === 'string'
-		? document.querySelector(options.container)
-		: options.container;
+		this.init();
+	}
 
-	if (!container) return;
+	init() {
+		const container = typeof this.options.container === 'string'
+			? document.querySelector(this.options.container)
+			: this.options.container;
 
-	const el = document.createElement('div');
-	container.appendChild(el);
-	Tify.$mount(el);
-};
+		if (!container) return;
 
-if (options.init) {
-	Tify.init();
+		const el = document.createElement('div');
+		container.appendChild(el);
+
+		this.instance = new Vue({
+			render: (h) => h(App),
+			data: {
+				base,
+				error: '',
+				loading: 0,
+				manifest: null,
+				manifestUrl: '',
+				messages: null,
+				options: this.options,
+				params: {},
+				paramsTimer: null,
+			},
+			mixins: [uiMixin, paramsMixin, iiifMixin],
+			computed: {
+				canvases() {
+					return this.manifest.sequences[0].canvases;
+				},
+				pageCount() {
+					return this.manifest.sequences[0].canvases.length;
+				},
+			},
+		});
+
+		this.instance.$mount(el);
+	}
 }
 
-window.Tify = Tify;
+if (window.tifyOptions?.init === true) {
+	window.Tify = new Tify();
+} else {
+	window.Tify = Tify;
+}
 
 export default Tify;

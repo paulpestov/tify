@@ -10,11 +10,10 @@
 		<script>
 			var matches = window.location.search.match(/(\?|&)language\=([^&]*)/);
 			var language = (matches && matches.length === 3 ? matches[2] : null);
-			if (language) {
-				tifyOptions = {
-					language: language,
-				};
-			}
+			var tifyOptions = {
+				init: true,
+				...(language) && language,
+			};
 		</script>
 	</body>
 </html>

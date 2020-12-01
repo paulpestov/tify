@@ -142,7 +142,7 @@
 			</div>
 		</div>
 
-		<div class="tify-scan_image" id="tify-scan_image" ref="image"/>
+		<div class="tify-scan_image" :id="containerId" ref="image"/>
 	</section>
 </template>
 
@@ -188,6 +188,7 @@ export default {
 	],
 	data() {
 		return {
+			containerId: `tify-scan_image-${Date.now()}`,
 			filtersVisible: false,
 			loadingTimeout: null,
 			tileSources: {},
@@ -305,7 +306,7 @@ export default {
 			// https://openseadragon.github.io/examples/tilesource-iiif/
 			this.viewer = OpenSeadragon({
 				animationTime: .4,
-				id: 'tify-scan_image',
+				id: this.containerId,
 				immediateRender: this.$root.options.immediateRender,
 				preload: !this.$root.isMobile(),
 				preserveImageSizeOnResize: true,
